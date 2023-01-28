@@ -12,7 +12,7 @@ import wget
 import time
 
 ## CFG
-cfg_model_path = "models/best.pt"  # "models/yourModel.pt"
+cfg_model_path = "../models/best.pt"  # "models/yourModel.pt"
 
 cfg_enable_url_download = False  # True
 if cfg_enable_url_download:
@@ -33,8 +33,8 @@ def imageInput(device, src):
             with col1:
                 st.image(img, caption='Uploaded Image', use_column_width='always')
             ts = datetime.timestamp(datetime.now())
-            imgpath = os.path.join('data/uploads', str(ts) + image_file.name)
-            outputpath = os.path.join('data/outputs', os.path.basename(imgpath))
+            imgpath = os.path.join('../data/uploads', str(ts) + image_file.name)
+            outputpath = os.path.join('../data/outputs', os.path.basename(imgpath))
             with open(imgpath, mode="wb") as f:
                 f.write(image_file.getbuffer())
 
@@ -72,9 +72,9 @@ def imageInput(device, src):
                 pred.render()  # render bbox in image
                 for im in pred.ims:
                     im_base64 = Image.fromarray(im)
-                    im_base64.save(os.path.join('data/outputs', os.path.basename(image_file)))
+                    im_base64.save(os.path.join('../data/outputs', os.path.basename(image_file)))
                     # --Display predicton
-                    img_ = Image.open(os.path.join('data/outputs', os.path.basename(image_file)))
+                    img_ = Image.open(os.path.join('../data/outputs', os.path.basename(image_file)))
                     st.image(img_, caption='Model Prediction(s)')
 
 
@@ -82,8 +82,8 @@ def videoInput(device, src):
     uploaded_video = st.file_uploader("Upload Video", type=['mp4', 'mpeg', 'mov'])
     if uploaded_video != None:
         ts = datetime.timestamp(datetime.now())
-        imgpath = os.path.join('data/uploads', str(ts) + uploaded_video.name)
-        outputpath = os.path.join('data/video_output', os.path.basename(imgpath))
+        imgpath = os.path.join('../data/uploads', str(ts) + uploaded_video.name)
+        outputpath = os.path.join('../data/video_output', os.path.basename(imgpath))
 
         with open(imgpath, mode='wb') as f:
             f.write(uploaded_video.read())  # save video to disk

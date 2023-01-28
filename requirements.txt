@@ -33,11 +33,15 @@ seaborn>=0.11.0
 
 # Extras --------------------------------------
 ipython  # interactive notebook
-psutil  # system utilization
+psutil==5.9.4
 thop  # FLOPs computation
-streamlit
+streamlit==1.16.0
 st_btn_select
 # albumentations>=1.0.3
 # pycocotools>=2.0  # COCO mAP
 # roboflow
-wget
+wget==3.2
+pip==21.1.2
+wheel==0.36.2
+setuptools==57.0.0
+opencv-python==4.6.0.66
