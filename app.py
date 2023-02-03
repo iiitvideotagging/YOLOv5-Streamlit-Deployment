@@ -17,7 +17,7 @@ import random
 ## CFG
 cfg_model_path = "models/best.pt"
 
-cfg_enable_url_download = False  # True
+cfg_enable_url_download = True  # True
 if cfg_enable_url_download:
     # url = "https://archive.org/download/yoloTrained/yoloTrained.pt"  # Configure this if you set
     # cfg_enable_url_download to True
