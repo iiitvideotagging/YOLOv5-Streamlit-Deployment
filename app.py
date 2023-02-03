@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import streamlit
 import streamlit as st
 import torch
 from detect import detect
@@ -18,7 +19,9 @@ cfg_model_path = "models/best.pt"
 
 cfg_enable_url_download = False  # True
 if cfg_enable_url_download:
-    url = "https://archive.org/download/yoloTrained/yoloTrained.pt"  # Configure this if you set cfg_enable_url_download to True
+    # url = "https://archive.org/download/yoloTrained/yoloTrained.pt"  # Configure this if you set
+    # cfg_enable_url_download to True
+    url = "https://archive.org/download/best_20230203/best.pt"
     cfg_model_path = f"models/{url.split('/')[-1:][0]}"  # config model path from url name
 
 
@@ -48,7 +51,7 @@ def imageInput(device, src):
                 im_base64 = Image.fromarray(im)
                 im_base64.save(outputpath)
 
-            # --Display predicton
+            # --Display prediction
 
             img_ = Image.open(outputpath)
             with col2:
@@ -80,33 +83,46 @@ def imageInput(device, src):
 
 
 def videoInput(device, src, iou_score, confidence_score):
+    i = -1
     uploaded_video = st.file_uploader("Upload Video", type=['mp4', 'mpeg', 'mov'])
-    if uploaded_video is not None:
-        ts = random.randrange(20, 50000, 3)  # datetime.timestamp(datetime.now())
-        generated_file_name = str(ts).replace("-", "_") + uploaded_video.name
-        img_path = os.path.join('data', 'uploads', generated_file_name)
-        output_path = os.path.join(Path.cwd(), 'data', 'video_output',
-                                   generated_file_name)  # os.path.basename(img_path))
+    if isinstance(uploaded_video, streamlit.runtime.uploaded_file_manager.UploadedFile):
+        print(uploaded_video)
+        print(type(uploaded_video))
+        print("i:" + str(i))
+        submit = st.button("Predict!")
 
-        with open(img_path, mode='wb') as f:
-            f.write(uploaded_video.read())  # save video to disk
+        if submit:
+            ts = random.randrange(20, 50000, 3)  # datetime.timestamp(datetime.now())
+            generated_file_name = str(ts).replace("-", "_") + uploaded_video.name
+            img_path = os.path.join('data', 'uploads', generated_file_name)
+            output_path = os.path.join(Path.cwd(), 'data', 'video_output',
+                                       generated_file_name)  # os.path.basename(img_path))
 
-        st_video = open(img_path, 'rb')
-        video_bytes = st_video.read()
-        st.write("Uploaded Video")
-        st.video(video_bytes)
+            with open(img_path, mode='wb') as f:
+                f.write(uploaded_video.read())  # save video to disk
 
-        if device == 'cuda':
-            detect(weights=cfg_model_path, source=img_path, device=0, iou_thres=iou_score, conf_thres=confidence_score)
-        else:
-            detect(weights=cfg_model_path, source=img_path, device='cpu', iou_thres=iou_score, conf_thres=confidence_score)
+            st_video = open(img_path, 'rb')
+            video_bytes = st_video.read()
+            st.write("Uploaded Video")
+            st.video(video_bytes)
 
-        print("Output path", output_path)
+            if device == 'cuda':
+                detect(weights=cfg_model_path, source=img_path, device=0, iou_thres=iou_score,
+                       conf_thres=confidence_score)
+            else:
+                detect(weights=cfg_model_path, source=img_path, device='cpu', iou_thres=iou_score,
+                       conf_thres=confidence_score)
 
-        st.write("Model Prediction")
-        st_video2 = open(output_path, 'rb')
-        video_bytes2 = st_video2.read()
-        st.video(video_bytes2)
+            print("Output path", output_path)
+            st.write("Model Prediction")
+            # st.write("Video saved in location :" + output_path)
+
+            with open(output_path, 'rb') as v:
+                st.video(v)
+            # st_video2 = open(output_path, 'rb')
+            # video_bytes2 = st_video2.read()
+            # st.video(video_bytes2)
+            i = -1
 
 
 def main():

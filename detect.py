@@ -30,7 +30,7 @@ import os
 import platform
 import sys
 from pathlib import Path
-
+import streamlit as st
 import torch
 
 FILE = Path(__file__).resolve()
@@ -75,7 +75,7 @@ def detect(
         hide_conf=False,  # hide confidences
         half=False,  # use FP16 half-precision inference
         dnn=False,  # use OpenCV DNN for ONNX inference
-        vid_stride=1,  # video frame-rate stride
+        vid_stride=1  # video frame-rate stride
 ):
     source = str(source)
     save_img = not nosave and not source.endswith('.txt')  # save inference images
@@ -85,6 +85,7 @@ def detect(
     screenshot = source.lower().startswith('screen')
     if is_url and is_file:
         source = check_file(source)  # download
+    st.write("Working on the project right now....")
 
     # Directories
     # RAHUL
@@ -113,6 +114,11 @@ def detect(
     # Run inference
     model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))  # warmup
     seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
+
+    progress_txt = st.caption(f'Analysing Video: 0 out of {dataset.frames} frames')
+    progress_bar = st.progress(0)
+    progress = frame_counter_class()
+
     for path, im, im0s, vid_cap, s in dataset:
         with dt[0]:
             im = torch.from_numpy(im).to(model.device)
@@ -200,11 +206,21 @@ def detect(
                         else:  # stream
                             fps, w, h = 30, im0.shape[1], im0.shape[0]
                         save_path = str(Path(save_path).with_suffix('.mp4'))  # force *.mp4 suffix on results videos
-                        vid_writer[i] = cv2.VideoWriter(save_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
+                        # fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+                        fourcc = 0x00000021
+                        vid_writer[i] = cv2.VideoWriter(save_path, fourcc, fps, (w, h))
                     vid_writer[i].write(im0)
 
         # Print time (inference-only)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
+
+        # progress of analysis
+        total_frame = dataset.frames
+        progress_bar.progress(progress(1) / total_frame)
+        progress_txt.caption(f'Analysing Video: {progress(0)} out of {total_frame} frames')
+
+    progress_bar.progress(100)
+    progress_txt.empty()
 
     # Print results
     t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
@@ -249,6 +265,16 @@ def parse_opt():
     opt.imgsz *= 2 if len(opt.imgsz) == 1 else 1  # expand
     print_args(vars(opt))
     return opt
+
+
+class frame_counter_class:
+    # Use for counting elapsed frame in the live stream
+    def __init__(self):
+        self.frame = 0
+
+    def __call__(self, count=0):
+        self.frame += count
+        return self.frame
 
 
 def main(opt):
