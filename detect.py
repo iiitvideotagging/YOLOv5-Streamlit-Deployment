@@ -228,9 +228,9 @@ def detect(
     if save_txt or save_img:
         s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''
         LOGGER.info(f"Results saved to {colorstr('bold', save_dir)}{s}")
+        LOGGER.info(f"Final video path {save_path}{s}")
     if update:
         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
-
 
 def parse_opt():
     parser = argparse.ArgumentParser()

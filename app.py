@@ -113,6 +113,7 @@ def videoInput(device, src, iou_score, confidence_score):
                 detect(weights=cfg_model_path, source=img_path, device='cpu', iou_thres=iou_score,
                        conf_thres=confidence_score,line_thickness=1)
 
+
             print("Output path", output_path)
             st.write("Model Prediction")
             # st.write("Video saved in location :" + output_path)
