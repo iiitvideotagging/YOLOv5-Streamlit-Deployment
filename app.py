@@ -95,9 +95,9 @@ def videoInput(device, src, iou_score, confidence_score):
             ts = random.randrange(20, 50000, 3)  # datetime.timestamp(datetime.now())
             generated_file_name = str(ts).replace("-", "_") + uploaded_video.name
             img_path = os.path.join('data', 'uploads', generated_file_name)
-            output_path = os.path.join(Path.cwd(), 'data', 'video_output',
+            output_path = os.path.join('data', 'video_output',
                                        generated_file_name)  # os.path.basename(img_path))
-
+            # Path.cwd(),
             with open(img_path, mode='wb') as f:
                 f.write(uploaded_video.read())  # save video to disk
 
@@ -112,7 +112,6 @@ def videoInput(device, src, iou_score, confidence_score):
             else:
                 detect(weights=cfg_model_path, source=img_path, device='cpu', iou_thres=iou_score,
                        conf_thres=confidence_score,line_thickness=1)
-
 
             print("Output path", output_path)
             st.write("Model Prediction")
