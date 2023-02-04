@@ -89,7 +89,7 @@ def detect(
 
     # Directories
     # RAHUL
-    save_dir = ROOT / 'data/video_output'
+    save_dir = ROOT / 'data/output'
     # save_dir = increment_path(Path(project) / name, exist_ok=exist_ok)  # increment run
     # (save_dir / 'labels' if save_txt else save_dir).mkdir(parents=True, exist_ok=True)  # make dir
 
