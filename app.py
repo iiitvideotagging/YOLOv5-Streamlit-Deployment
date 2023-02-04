@@ -108,10 +108,10 @@ def videoInput(device, src, iou_score, confidence_score):
 
             if device == 'cuda':
                 detect(weights=cfg_model_path, source=img_path, device=0, iou_thres=iou_score,
-                       conf_thres=confidence_score)
+                       conf_thres=confidence_score,line_thickness=1)
             else:
                 detect(weights=cfg_model_path, source=img_path, device='cpu', iou_thres=iou_score,
-                       conf_thres=confidence_score)
+                       conf_thres=confidence_score,line_thickness=1)
 
             print("Output path", output_path)
             st.write("Model Prediction")
