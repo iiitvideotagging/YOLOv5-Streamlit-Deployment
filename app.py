@@ -137,7 +137,7 @@ def main():
     if torch.cuda.is_available():
         deviceoption = st.sidebar.radio("Select compute Device.", ['cpu', 'cuda'], disabled=False, index=1)
     else:
-        deviceoption = st.sidebar.radio("Select compute Device.", ['cpu', 'cuda'], disabled=True, index=0)
+        deviceoption = st.sidebar.radio("Select compute Device.", ['cpu', 'cuda'], disabled=False, index=0)
     # -- End of Sidebar
 
     st.header(':oncoming_automobile: IIIT - Multi Object Detection')
