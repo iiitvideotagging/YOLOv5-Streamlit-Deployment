@@ -17,7 +17,7 @@ import random
 ## CFG
 cfg_model_path = "models/best.pt"
 
-cfg_enable_url_download = True  # True
+cfg_enable_url_download = False  # True
 if cfg_enable_url_download:
     # url = "https://archive.org/download/yoloTrained/yoloTrained.pt"  # Configure this if you set
     # cfg_enable_url_download to True
@@ -95,9 +95,9 @@ def videoInput(device, src, iou_score, confidence_score):
             ts = random.randrange(20, 50000, 3)  # datetime.timestamp(datetime.now())
             generated_file_name = str(ts).replace("-", "_") + uploaded_video.name
             img_path = os.path.join('data', 'uploads', generated_file_name)
-            output_path = os.path.join('data', 'video_output',
+            output_path = os.path.join(Path.cwd(), 'data', 'video_output',
                                        generated_file_name)  # os.path.basename(img_path))
-            # Path.cwd(),
+
             with open(img_path, mode='wb') as f:
                 f.write(uploaded_video.read())  # save video to disk
 
@@ -107,11 +107,11 @@ def videoInput(device, src, iou_score, confidence_score):
             st.video(video_bytes)
 
             if device == 'cuda':
-                detect(weights=cfg_model_path, source=img_path, device=0, iou_thres=iou_score,
-                       conf_thres=confidence_score,line_thickness=1)
+                output_path = detect(weights=cfg_model_path, source=img_path, device=0, iou_thres=iou_score,
+                                     conf_thres=confidence_score, line_thickness=1)
             else:
-                detect(weights=cfg_model_path, source=img_path, device='cpu', iou_thres=iou_score,
-                       conf_thres=confidence_score,line_thickness=1)
+                output_path = detect(weights=cfg_model_path, source=img_path, device='cpu', iou_thres=iou_score,
+                                     conf_thres=confidence_score, line_thickness=1)
 
             print("Output path", output_path)
             st.write("Model Prediction")
@@ -130,7 +130,8 @@ def main():
     st.sidebar.title('⚙️User Configurations')
     option = st.sidebar.radio("Select input type.", ['Image', 'Video'])
     # datasrc = st.sidebar.radio("Select input source.", ['From BDD100K Dataset.', 'Upload your own data.'],)
-    datasrc = st.sidebar.radio("Select input source.", ['From BDD100K Dataset.', 'Upload your own data.'], disabled=True, index=1)
+    datasrc = st.sidebar.radio("Select input source.", ['From BDD100K Dataset.', 'Upload your own data.'],
+                               disabled=True, index=1)
     iou_score = st.sidebar.slider('Select IoU threshold', min_value=0.5, max_value=1.0, step=0.05)
     confidence_score = st.sidebar.slider('Select confidence threshold', min_value=0.1, max_value=1.0, step=0.01)
 

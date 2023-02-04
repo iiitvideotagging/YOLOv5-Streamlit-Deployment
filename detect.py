@@ -231,6 +231,7 @@ def detect(
         LOGGER.info(f"Final video path {save_path}{s}")
     if update:
         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
+    return save_path
 
 def parse_opt():
     parser = argparse.ArgumentParser()
