@@ -21,7 +21,7 @@ cfg_enable_url_download = True  # True
 if cfg_enable_url_download:
     # url = "https://archive.org/download/yoloTrained/yoloTrained.pt"  # Configure this if you set
     # cfg_enable_url_download to True
-    url = "https://archive.org/download/best_20230203/best.pt"
+    url = "https://archive.org/download/yolov5_custom_202302/best.pt"
     cfg_model_path = f"models/{url.split('/')[-1:][0]}"  # config model path from url name
 
 
