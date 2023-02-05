@@ -114,7 +114,12 @@ def videoInput(device, src, iou_score, confidence_score):
                                      conf_thres=confidence_score, line_thickness=1)
 
             print("Output path", output_path)
+
             st.write("Model Prediction")
+            st_video1 = open(output_path, 'rb')
+            video_bytes1 = st_video1.read()
+            st.video(video_bytes1)
+
             # st.write("Video saved in location :" + output_path)
 
             with open(output_path, 'rb') as v:
