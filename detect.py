@@ -209,6 +209,7 @@ def detect(
                         # fourcc = cv2.VideoWriter_fourcc(*'MP4V')
                         fourcc = 0x00000021
                         vid_writer[i] = cv2.VideoWriter(save_path, fourcc, fps, (w, h))
+                    LOGGER.info(f"Path exists - Final {os.path.exists(save_path)}{s}")
                     vid_writer[i].write(im0)
 
         # Print time (inference-only)
@@ -229,9 +230,21 @@ def detect(
         s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''
         LOGGER.info(f"Results saved to {colorstr('bold', save_dir)}{s}")
         LOGGER.info(f"Final video path 1 {os.listdir(save_dir)}{s}")
+        LOGGER.info(f"Path exists - 1 {os.path.exists(save_path)}{s}")
+
     if update:
         strip_optimizer(weights[0])  # update model (to fix SourceChangeWarning)
+
+    LOGGER.info(f"Path exists - Final {os.path.exists(save_path)}{s}")
+    print_all_files("/app/yolov5-streamlit-deployment/")
     return save_path
+
+
+def print_all_files(root):
+    for path, subdirs, files in os.walk(root):
+        for name in files:
+            LOGGER.info(f"{os.path.join(path, name)}")
+
 
 def parse_opt():
     parser = argparse.ArgumentParser()
