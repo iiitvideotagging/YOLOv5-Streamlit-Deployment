@@ -207,9 +207,9 @@ def detect(
                             fps, w, h = 30, im0.shape[1], im0.shape[0]
                         save_path = str(Path(save_path).with_suffix('.mp4'))  # force *.mp4 suffix on results videos
                         # fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-                        fourcc = 0x00000021
-                        vid_writer[i] = cv2.VideoWriter(save_path, fourcc, fps, (w, h))
-                    LOGGER.info(f"Path exists - Final {os.path.exists(save_path)}{s}")
+                        # fourcc = # 0x00000021
+                        vid_writer[i] = cv2.VideoWriter(save_path, *"mp4v", fps, (w, h))
+                    LOGGER.info(f"Path exists - during analysis : {os.path.exists(save_path)}{s}")
                     vid_writer[i].write(im0)
 
         # Print time (inference-only)
