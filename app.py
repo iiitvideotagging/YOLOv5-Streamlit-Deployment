@@ -14,6 +14,10 @@ import time
 import uuid
 import random
 
+import os
+import subprocess
+
+
 ## CFG
 cfg_model_path = "models/best.pt"
 
@@ -115,20 +119,35 @@ def videoInput(device, src, iou_score, confidence_score):
 
             print("Output path", output_path)
 
+            new_video_file_name = str(ts).replace("-", "_") + uploaded_video.name
+            new_video_path = os.path.join(Path.cwd(), 'data', 'outputs', new_video_file_name)
+            # os.chdir('C://Users/Alex/')
+            # subprocess.call(['ffmpeg', '-i', output_path, '-vcodec libx264 ', new_video_path ])
+            # call_with_output(['ffmpeg', '-i', output_path, '-vcodec libx264 ', new_video_path])
             st.write("Model Prediction")
-            st_video1 = open(output_path, 'rb')
-            video_bytes1 = st_video1.read()
-            st.video(video_bytes1)
 
-            # st.write("Video saved in location :" + output_path)
+            cmd = "ffmpeg -i " + output_path + " -vcodec libx264 " + new_video_path
+            os.system(cmd)
 
-            with open(output_path, 'rb') as v:
+            with open(new_video_path, 'rb') as v:
                 st.video(v)
             # st_video2 = open(output_path, 'rb')
             # video_bytes2 = st_video2.read()
             # st.video(video_bytes2)
             i = -1
 
+
+def call_with_output(command):
+    success = False
+    try:
+        output = subprocess.check_output(command, stderr=subprocess.STDOUT).decode()
+        success = True
+    except subprocess.CalledProcessError as e:
+        output = e.output.decode()
+    except Exception as e:
+        # check_call can raise other exceptions, such as FileNotFoundError
+        output = str(e)
+    return success, output
 
 def main():
     # -- Sidebar
