@@ -46,3 +46,10 @@ wheel==0.36.2
 setuptools==57.0.0
 ffmpeg-python
 # opencv-python==4.6.0.66
+
+# Tracking ------------------------------------
+filterpy
+scikit-image
+
+
+

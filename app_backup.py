@@ -17,12 +17,11 @@ import random
 import os
 import subprocess
 
-## CFG
-from obj_det_and_trk_streamlit import detect_and_track
 
+## CFG
 cfg_model_path = "models/best.pt"
 
-cfg_enable_url_download = False  # True
+cfg_enable_url_download = False    #True
 if cfg_enable_url_download:
     # url = "https://archive.org/download/yoloTrained/yoloTrained.pt"  # Configure this if you set
     # cfg_enable_url_download to True
@@ -65,68 +64,34 @@ def videoInput(device, src, iou_score, confidence_score):
     i = -1
     uploaded_video = st.file_uploader("Upload Video", type=['mp4', 'mpeg', 'mov'])
     tracking_required = st.sidebar.radio("Do we need to track objects?", ['Yes', 'No'], disabled=False, index=0)
-    print(f"Require tracking:{tracking_required}")
-    save_output_video = st.sidebar.radio("Save output video?", ['Yes', 'No'], disabled=True, index=0)
-    if save_output_video == 'Yes':
-        no_save = False
-        display_labels = False
-    else:
-        no_save = True
-        display_labels = True
-
+    print(tracking_required)
     if isinstance(uploaded_video, streamlit.runtime.uploaded_file_manager.UploadedFile):
         print(uploaded_video)
         print(type(uploaded_video))
         print("i:" + str(i))
-
-        ts = random.randrange(20, 50000, 3)  # datetime.timestamp(datetime.now())
-        generated_file_name = str(ts).replace("-", "_") + uploaded_video.name
-        img_path = os.path.join('data', 'uploads', generated_file_name)
-        output_path = os.path.join(Path.cwd(), 'data', 'output',
-                                   generated_file_name)  # os.path.basename(img_path))
-
-        with open(img_path, mode='wb') as f:
-            f.write(uploaded_video.read())  # save video to disk
-
-        st_video = open(img_path, 'rb')
-        video_bytes = st_video.read()
-        st.write("Uploaded Video")
-        st.video(video_bytes)
-
         submit = st.button("Predict!")
+
         if submit:
-            if tracking_required:
-                stframe = st.empty()
-                st.markdown("""<h4 style="color:black;"> Memory Overall Statistics</h4>""", unsafe_allow_html=True)
-                kpi5, kpi6 = st.columns(2)
+            ts = random.randrange(20, 50000, 3)  # datetime.timestamp(datetime.now())
+            generated_file_name = str(ts).replace("-", "_") + uploaded_video.name
+            img_path = os.path.join('data', 'uploads', generated_file_name)
+            output_path = os.path.join(Path.cwd(), 'data', 'output',
+                                       generated_file_name)  # os.path.basename(img_path))
 
-                with kpi5:
-                    st.markdown("""<h6 style="color:black;">CPU Utilization</h6>""", unsafe_allow_html=True)
-                    kpi5_text = st.markdown("0")
+            with open(img_path, mode='wb') as f:
+                f.write(uploaded_video.read())  # save video to disk
 
-                with kpi6:
-                    st.markdown("""<h6 style="color:black;">Memory Usage</h6>""", unsafe_allow_html=True)
-                    kpi6_text = st.markdown("0")
+            st_video = open(img_path, 'rb')
+            video_bytes = st_video.read()
+            st.write("Uploaded Video")
+            st.video(video_bytes)
 
-                output_path = detect_and_track(weights=cfg_model_path,
-                                               source=img_path,
-                                               stframe=stframe,
-                                               kpi5_text=kpi5_text,
-                                               kpi6_text=kpi6_text,
-                                               conf_thres=confidence_score,
-                                               device="cpu",
-                                               nosave=no_save,
-                                               display_labels=display_labels)
+            if device == 'cuda':
+                output_path = detect(weights=cfg_model_path, source=img_path, device=0, iou_thres=iou_score,
+                                     conf_thres=confidence_score, line_thickness=1)
             else:
-                hide_labels = False if display_labels else True
-                if device == 'cuda':
-                    output_path = detect(weights=cfg_model_path, source=img_path, device=0, iou_thres=iou_score,
-                                         conf_thres=confidence_score, line_thickness=1, nosave=no_save,
-                                         hide_labels=hide_labels)
-                else:
-                    output_path = detect(weights=cfg_model_path, source=img_path, device='cpu', iou_thres=iou_score,
-                                         conf_thres=confidence_score, line_thickness=1, nosave=no_save,
-                                         hide_labels=hide_labels)
+                output_path = detect(weights=cfg_model_path, source=img_path, device='cpu', iou_thres=iou_score,
+                                     conf_thres=confidence_score, line_thickness=1)
 
             print("Output path", output_path)
 
@@ -135,7 +100,7 @@ def videoInput(device, src, iou_score, confidence_score):
             # os.chdir('C://Users/Alex/')
             # subprocess.call(['ffmpeg', '-i', output_path, '-vcodec libx264 ', new_video_path ])
             # call_with_output(['ffmpeg', '-i', output_path, '-vcodec libx264 ', new_video_path])
-            st.markdown("""<h4 style="color:black;"> Final Video Generated </h4>""", unsafe_allow_html=True)
+            st.write("Model Prediction")
 
             cmd = "ffmpeg -i " + output_path + " -vcodec libx264 " + new_video_path
             os.system(cmd)
@@ -160,7 +125,6 @@ def call_with_output(command):
         output = str(e)
     return success, output
 
-
 def main():
     # -- Sidebar
     st.sidebar.title('⚙️User Configurations')
@@ -170,6 +134,14 @@ def main():
     confidence_score = st.sidebar.slider('Select confidence threshold', min_value=0.1, max_value=1.0, step=0.01)
     deviceoption = 'cuda'
 
+    """
+    datasrc = st.sidebar.radio("Select input source.", ['From BDD100K Dataset.', 'Upload your own data.'],
+                        disabled=True, index=1, label_visibility=False)
+    if torch.cuda.is_available():
+        deviceoption = st.sidebar.radio("Select compute Device.", ['cpu', 'cuda'], disabled=False, index=1)
+    else:
+        deviceoption = st.sidebar.radio("Select compute Device.", ['cpu', 'cuda'], disabled=False, index=0)
+    """
     # -- End of Sidebar
     st.header(':oncoming_automobile: IIIT - Multi Object Detection')
     st.subheader('👈🏽 Select options left-handed menu bar.')
