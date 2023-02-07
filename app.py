@@ -22,7 +22,7 @@ from obj_det_and_trk_streamlit import detect_and_track
 
 cfg_model_path = "models/best.pt"
 
-cfg_enable_url_download = True  # True
+cfg_enable_url_download = False  # True
 if cfg_enable_url_download:
     # url = "https://archive.org/download/yoloTrained/yoloTrained.pt"  # Configure this if you set
     # cfg_enable_url_download to True
@@ -61,12 +61,56 @@ def imageInput(device, src):
                 st.image(img_, caption='Model Prediction(s)', use_column_width='always')
 
 
+def get_key(my_dict, val):
+    for key, value in my_dict.items():
+        if val == value:
+            return key
+
+
+def prepare_classes_string(selected_options):
+    bdd100k_classes = {0: 'traffic light',
+                       1: 'traffic sign',
+                       2: 'car',
+                       3: 'pedestrian',
+                       4: 'bus',
+                       5: 'truck',
+                       6: 'rider',
+                       7: 'bicycle',
+                       8: 'motorcycle',
+                       9: 'train',
+                       10: 'other vehicle',
+                       11: 'other person',
+                       12: 'trailer'}
+    class_string_required = ''
+    if selected_options is not None:
+        class_string_required = [get_key(bdd100k_classes, option) for option in selected_options]
+        # for option in selected_options:
+        #    class_string_required = class_string_required + ' ' + get_key(bdd100k_classes, option)
+    print(class_string_required)
+    # class_string_required = [0, 2, 3]
+    return class_string_required
+
+
 def videoInput(device, src, iou_score, confidence_score):
     i = -1
     uploaded_video = st.file_uploader("Upload Video", type=['mp4', 'mpeg', 'mov'])
+    container = st.sidebar.container()
+    all = st.sidebar.checkbox("Select all")
+    options = ['traffic light', 'traffic sign', 'car', 'pedestrian', 'bus',
+               'truck', 'rider', 'bicycle', 'motorcycle', 'train', 'trailer']
     tracking_required = st.sidebar.radio("Do we need to track objects?", ['Yes', 'No'], disabled=False, index=0)
     print(f"Require tracking:{tracking_required}")
-    save_output_video = st.sidebar.radio("Save output video?", ['Yes', 'No'], disabled=True, index=0)
+    save_output_video = 'Yes'  # st.sidebar.radio("Save output video?", ['Yes', 'No'], disabled=True, index=0)
+
+    if all:
+        selected_options = container.multiselect("Objects of interest on road scene:",
+                                                 options, options)
+    else:
+        selected_options = container.multiselect("Objects of interest on road scene:",
+                                                 options)
+    classes_string = prepare_classes_string(selected_options)
+    print(selected_options)
+
     if save_output_video == 'Yes':
         no_save = False
         display_labels = False
@@ -117,12 +161,13 @@ def videoInput(device, src, iou_score, confidence_score):
                                                conf_thres=confidence_score,
                                                device="cpu",
                                                nosave=no_save,
-                                               display_labels=display_labels)
+                                               display_labels=display_labels,
+                                               classes=classes_string)
             else:
                 hide_labels = False if display_labels else True
                 output_path = detect(weights=cfg_model_path, source=img_path, device='cpu', iou_thres=iou_score,
                                      conf_thres=confidence_score, line_thickness=1, nosave=no_save,
-                                     hide_labels=hide_labels)
+                                     hide_labels=hide_labels, classes=classes_string)
 
             print("Output path", output_path)
 
