@@ -164,7 +164,7 @@ def call_with_output(command):
 def main():
     # -- Sidebar
     st.sidebar.title('⚙️User Configurations')
-    option = st.sidebar.radio("Select input type.", ['Image', 'Video'])
+    option = st.sidebar.radio("Select input type.", ['Video', 'Image'], index=0)
     datasrc = 'Upload your own data.'
     iou_score = st.sidebar.slider('Select IoU threshold', min_value=0.5, max_value=1.0, step=0.05)
     confidence_score = st.sidebar.slider('Select confidence threshold', min_value=0.1, max_value=1.0, step=0.01)
