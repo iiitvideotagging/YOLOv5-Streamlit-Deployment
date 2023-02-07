@@ -85,7 +85,6 @@ def detect(
     screenshot = source.lower().startswith('screen')
     if is_url and is_file:
         source = check_file(source)  # download
-    st.write("Working on the project right now....")
 
     # Directories
     # RAHUL

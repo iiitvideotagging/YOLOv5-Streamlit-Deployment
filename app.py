@@ -95,7 +95,8 @@ def videoInput(device, src, iou_score, confidence_score):
 
         submit = st.button("Predict!")
         if submit:
-            if tracking_required:
+            print(f"Tracking required just before start:{tracking_required}")
+            if tracking_required == "Yes":
                 stframe = st.empty()
                 st.markdown("""<h4 style="color:black;"> Memory Overall Statistics</h4>""", unsafe_allow_html=True)
                 kpi5, kpi6 = st.columns(2)
@@ -119,14 +120,9 @@ def videoInput(device, src, iou_score, confidence_score):
                                                display_labels=display_labels)
             else:
                 hide_labels = False if display_labels else True
-                if device == 'cuda':
-                    output_path = detect(weights=cfg_model_path, source=img_path, device=0, iou_thres=iou_score,
-                                         conf_thres=confidence_score, line_thickness=1, nosave=no_save,
-                                         hide_labels=hide_labels)
-                else:
-                    output_path = detect(weights=cfg_model_path, source=img_path, device='cpu', iou_thres=iou_score,
-                                         conf_thres=confidence_score, line_thickness=1, nosave=no_save,
-                                         hide_labels=hide_labels)
+                output_path = detect(weights=cfg_model_path, source=img_path, device='cpu', iou_thres=iou_score,
+                                     conf_thres=confidence_score, line_thickness=1, nosave=no_save,
+                                     hide_labels=hide_labels)
 
             print("Output path", output_path)
 
