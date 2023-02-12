@@ -1,4 +1,4 @@
-FROM gcr.io/google-appengine/python
+FROM gcr.io/google-appengine/python:latest@sha256:c6480acd38ca4605e0b83f5196ab6fe8a8b59a0288a7b8216c42dbc45b5de8f6
 
 # Create a virtualenv for dependencies. This isolates these packages from
 # system-level packages.
