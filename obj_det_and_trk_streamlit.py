@@ -189,7 +189,7 @@ def detect_and_track(weights=ROOT / 'yolov5n.pt',
 
             p = Path(p)
             save_path = str(save_dir / p.name)  # im.jpg
-            print(f"Initial save path : {save_path}")
+            # print(f"Initial save path : {save_path}")
 
             # save_path = str(save_dir / p.name)
             txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # im.txt
@@ -266,7 +266,7 @@ def detect_and_track(weights=ROOT / 'yolov5n.pt',
 
     if save_txt or save_img:
         s = f"\n{len(list(save_dir.glob('labels/*.txt')))} labels saved to {save_dir / 'labels'}" if save_txt else ''
-        print(f"Results saved to {save_dir}{s}")
+        # print(f"Results saved to {save_dir}{s}")
 
     if update:
         strip_optimizer(weights)

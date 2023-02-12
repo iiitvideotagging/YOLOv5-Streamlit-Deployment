@@ -53,12 +53,14 @@ from utils.plots import Annotator, colors, save_one_box
 from utils.torch_utils import select_device, smart_inference_mode
 
 from sort import *
+import psutil
+import streamlit as st
 
 """Function to Draw Bounding boxes"""
 
 
 def draw_boxes(img, bbox, identities=None, categories=None, confidences=None, names=None, bbox_colors=None,
-               thickness=1 , nobbox = False , nolabel = False):
+               thickness=1, nobbox=False, nolabel=False):
     for i, box in enumerate(bbox):
         x1, y1, x2, y2 = [int(i) for i in box]
         tl = thickness or round(0.002 * (img.shape[0] + img.shape[1]) / 2) + 1  # line/font thickness
@@ -81,6 +83,16 @@ def draw_boxes(img, bbox, identities=None, categories=None, confidences=None, na
             cv2.putText(img, label, (x1, y1 - 2), 0, tl / 3, [225, 255, 255], thickness=tf, lineType=cv2.LINE_AA)
 
     return img
+
+
+class frame_counter_class:
+    # Use for counting elapsed frame in the live stream
+    def __init__(self):
+        self.frame = 0
+
+    def __call__(self, count=0):
+        self.frame += count
+        return self.frame
 
 
 @smart_inference_mode()
@@ -168,6 +180,11 @@ def detect_run_updated(
     # Run inference
     model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))  # warmup
     seen, windows, dt = 0, [], (Profile(), Profile(), Profile())
+
+    progress_txt = st.caption(f'Analysing Video: 0 out of {dataset.frames} frames')
+    progress_bar = st.progress(0)
+    progress = frame_counter_class()
+
     for path, im, im0s, vid_cap, s in dataset:
         with dt[0]:
             im = torch.from_numpy(im).to(model.device)
@@ -234,7 +251,7 @@ def detect_run_updated(
                             # loop over tracks
                             for t, track in enumerate(tracks):
                                 track_color = bbox_colors[int(track.detclass)] if not unique_track_color else \
-                                sort_tracker.color_list[t]
+                                    sort_tracker.color_list[t]
 
                                 [cv2.line(im0, (int(track.centroidarr[i][0]),
                                                 int(track.centroidarr[i][1])),
@@ -250,7 +267,7 @@ def detect_run_updated(
                     confidences = dets_to_sort[:, 4]
 
                 im0 = draw_boxes(im0, bbox_xyxy, identities, categories, confidences, names, bbox_colors,
-                                 thickness , nobbox , nolabel)
+                                 thickness, nobbox, nolabel)
 
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
@@ -298,6 +315,17 @@ def detect_run_updated(
 
         # Print time (inference-only)
         LOGGER.info(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
+
+        # progress of analysis
+        total_frame = dataset.frames
+        progress_bar.progress(progress(1) / total_frame)
+        progress_txt.caption(f'Analysing Video: {progress(0)} out of {total_frame} frames')
+        kpi5_text.write(str(psutil.virtual_memory()[2]) + "%")
+        kpi6_text.write(str(psutil.cpu_percent()) + '%')
+        stframe.image(im0, channels="BGR", use_column_width=True)
+
+    progress_bar.progress(100)
+    progress_txt.empty()
 
     # Print results
     t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image

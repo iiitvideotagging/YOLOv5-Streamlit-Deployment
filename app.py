@@ -88,7 +88,7 @@ def prepare_classes_string(selected_options):
         class_string_required = [get_key(bdd100k_classes, option) for option in selected_options]
         # for option in selected_options:
         #    class_string_required = class_string_required + ' ' + get_key(bdd100k_classes, option)
-    print(class_string_required)
+    # print(class_string_required)
     # class_string_required = [0, 2, 3]
     return class_string_required
 
@@ -101,7 +101,7 @@ def videoInput(device, src, iou_score, confidence_score):
     options = ['traffic light', 'traffic sign', 'car', 'pedestrian', 'bus',
                'truck', 'rider', 'bicycle', 'motorcycle', 'train', 'trailer']
     tracking_required = st.sidebar.radio("Do we need to track objects?", ['Yes', 'No'], disabled=False, index=0)
-    print(f"Require tracking:{tracking_required}")
+    # print(f"Require tracking:{tracking_required}")
     save_output_video = 'Yes'  # st.sidebar.radio("Save output video?", ['Yes', 'No'], disabled=True, index=0)
 
     if all:
@@ -111,7 +111,7 @@ def videoInput(device, src, iou_score, confidence_score):
         selected_options = container.multiselect("Objects of interest on road scene:",
                                                  options, ['car', 'bicycle'])
     classes_string = prepare_classes_string(selected_options)
-    print(selected_options)
+    # print(selected_options)
 
     if save_output_video == 'Yes':
         no_save = False
@@ -121,9 +121,9 @@ def videoInput(device, src, iou_score, confidence_score):
         display_labels = True
 
     if isinstance(uploaded_video, streamlit.runtime.uploaded_file_manager.UploadedFile):
-        print(uploaded_video)
-        print(type(uploaded_video))
-        print("i:" + str(i))
+        # print(uploaded_video)
+        # print(type(uploaded_video))
+        # print("i:" + str(i))
 
         ts = random.randrange(20, 50000, 3)  # datetime.timestamp(datetime.now())
         generated_file_name = str(ts).replace("-", "_") + uploaded_video.name
@@ -141,7 +141,7 @@ def videoInput(device, src, iou_score, confidence_score):
 
         submit = st.button("Predict!")
         if submit:
-            print(f"Tracking required just before start:{tracking_required}")
+            # print(f"Tracking required just before start:{tracking_required}")
             if tracking_required == "Yes":
                 stframe = st.empty()
                 st.markdown("""<h4 style="color:black;"> Memory Overall Statistics</h4>""", unsafe_allow_html=True)
@@ -164,27 +164,30 @@ def videoInput(device, src, iou_score, confidence_score):
                     hide_labels=False,
                     classes=classes_string,
                     track=True,
-                    unique_track_color=True
+                    unique_track_color=True,
+                    stframe=stframe,
+                    kpi5_text=kpi5_text,
+                    kpi6_text=kpi6_text
                 )
-                '''
-                output_path = detect_and_track(weights=cfg_model_path,
-                                               source=img_path,
-                                               stframe=stframe,
-                                               kpi5_text=kpi5_text,
-                                               kpi6_text=kpi6_text,
-                                               conf_thres=confidence_score,
-                                               device="cpu",
-                                               nosave=no_save,
-                                               display_labels=display_labels,
-                                               classes=classes_string)
-                '''
+
+                # output_path = detect_and_track(weights=cfg_model_path,
+                #                                source=img_path,
+                #                                stframe=stframe,
+                #                                kpi5_text=kpi5_text,
+                #                                kpi6_text=kpi6_text,
+                #                                conf_thres=confidence_score,
+                #                                device="cpu",
+                #                                nosave=no_save,
+                #                                display_labels=display_labels,
+                #                                classes=classes_string)
+
             else:
                 hide_labels = False if display_labels else True
                 output_path = detect(weights=cfg_model_path, source=img_path, device='cpu', iou_thres=iou_score,
                                      conf_thres=confidence_score, line_thickness=1, nosave=no_save,
                                      hide_labels=hide_labels, classes=classes_string)
 
-            print("Output path final ", output_path)
+            # print("Output path final ", output_path)
             new_video_file_name = str(ts).replace("-", "_") + "_improved_video.mp4"
             new_video_path = os.path.join(Path.cwd(), 'data', 'outputs', new_video_file_name)
             # os.chdir('C://Users/Alex/')
@@ -244,7 +247,7 @@ def loadModel():
     start_dl = time.time()
     model_file = wget.download(url, out="models/")
     finished_dl = time.time()
-    print(f"Model Downloaded, ETA:{finished_dl - start_dl}")
+    # print(f"Model Downloaded, ETA:{finished_dl - start_dl}")
 
 
 if cfg_enable_url_download:
