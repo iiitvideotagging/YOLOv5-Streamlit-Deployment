@@ -155,8 +155,8 @@ def detect_and_track(weights=ROOT / 'yolov5n.pt',
     progress_bar = st.progress(0)
     progress = frame_counter_class()
 
-    ts = random.randrange(20, 50000, 3)  # datetime.timestamp(datetime.now())
-    generated_file_name = str(ts).replace("-", "_") + "detected_video"
+    # ts = random.randrange(20, 50000, 3)  # datetime.timestamp(datetime.now())
+    # generated_file_name = str(ts).replace("-", "_") + "detected_video"
 
     for path, im, im0s, vid_cap, s in dataset:
 
@@ -188,7 +188,7 @@ def detect_and_track(weights=ROOT / 'yolov5n.pt',
                 p, im0, frame = path, im0s.copy(), getattr(dataset, 'frame', 0)
 
             p = Path(p)
-            save_path = str(save_dir / generated_file_name)  # im.jpg
+            save_path = str(save_dir / p.name)  # im.jpg
             print(f"Initial save path : {save_path}")
 
             # save_path = str(save_dir / p.name)

@@ -152,10 +152,10 @@ def detect(
 
             p = Path(p)  # to Path
 
-            ts = random.randrange(20, 50000, 3)  # datetime.timestamp(datetime.now())
-            generated_file_name = str(ts).replace("-", "_") + str(p.name).replace(" ", "_")
+            # ts = random.randrange(20, 50000, 3)  # datetime.timestamp(datetime.now())
+            # generated_file_name = str(ts).replace("-", "_") + str(p.name).replace(" ", "_")
 
-            save_path = str(save_dir / generated_file_name)  # im.jpg
+            save_path = str(save_dir / p.name)  # im.jpg
             txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # im.txt
             s += '%gx%g ' % im.shape[2:]  # print string
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  # normalization gain whwh
