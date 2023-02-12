@@ -18,11 +18,12 @@ import os
 import subprocess
 
 ## CFG
+from detect_or_track_y5 import detect_run_updated
 from obj_det_and_trk_streamlit import detect_and_track
 
 cfg_model_path = "models/best.pt"
 
-cfg_enable_url_download = True  # True
+cfg_enable_url_download = False  # True
 if cfg_enable_url_download:
     # url = "https://archive.org/download/yoloTrained/yoloTrained.pt"  # Configure this if you set
     # cfg_enable_url_download to True
@@ -154,6 +155,18 @@ def videoInput(device, src, iou_score, confidence_score):
                     st.markdown("""<h6 style="color:black;">Memory Usage</h6>""", unsafe_allow_html=True)
                     kpi6_text = st.markdown("0")
 
+                output_path = detect_run_updated(
+                    weights=cfg_model_path,
+                    source=img_path,
+                    conf_thres=confidence_score,
+                    device="cpu",
+                    nosave=no_save,
+                    hide_labels=False,
+                    classes=classes_string,
+                    track=True,
+                    unique_track_color=True
+                )
+                '''
                 output_path = detect_and_track(weights=cfg_model_path,
                                                source=img_path,
                                                stframe=stframe,
@@ -164,6 +177,7 @@ def videoInput(device, src, iou_score, confidence_score):
                                                nosave=no_save,
                                                display_labels=display_labels,
                                                classes=classes_string)
+                '''
             else:
                 hide_labels = False if display_labels else True
                 output_path = detect(weights=cfg_model_path, source=img_path, device='cpu', iou_thres=iou_score,

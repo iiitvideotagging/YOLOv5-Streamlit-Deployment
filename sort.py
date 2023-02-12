@@ -1,6 +1,8 @@
 from __future__ import print_function
 
 import os
+from random import randint
+
 import numpy as np
 import matplotlib
 
@@ -227,11 +229,77 @@ class Sort(object):
         self.iou_threshold = iou_threshold
         self.trackers = []
         self.frame_count = 0
+        self.color_list = []
 
     def getTrackers(self, ):
         return self.trackers
 
-    def update(self, dets=np.empty((0, 6))):
+    def get_color(self):
+        # r = randint(0, 255)
+        # g = randint(0, 255)
+        # b = randint(0, 255)
+        color = (randint(0, 255), randint(0, 255), randint(0, 255))
+        return color
+
+    def update(self, dets=np.empty((0, 6)), unique_color=False):
+        """
+        Parameters:
+        'dets' - a numpy array of detection in the format [[x1, y1, x2, y2, score], [x1,y1,x2,y2,score],...]
+
+        Ensure to call this method even frame has no detections. (pass np.empty((0,5)))
+
+        Returns a similar array, where the last column is object ID (replacing confidence score)
+
+        NOTE: The number of objects returned may differ from the number of objects provided.
+        """
+        self.frame_count += 1
+
+        # Get predicted locations from existing trackers
+        trks = np.zeros((len(self.trackers), 6))
+        to_del = []
+        ret = []
+        for t, trk in enumerate(trks):
+
+            pos = self.trackers[t].predict()[0]
+            trk[:] = [pos[0], pos[1], pos[2], pos[3], 0, 0]
+            if np.any(np.isnan(pos)):
+                to_del.append(t)
+        trks = np.ma.compress_rows(np.ma.masked_invalid(trks))
+        for t in reversed(to_del):
+            self.trackers.pop(t)
+            if unique_color:
+                self.color_list.pop(t)
+        matched, unmatched_dets, unmatched_trks = associate_detections_to_trackers(dets, trks, self.iou_threshold)
+
+        # Update matched trackers with assigned detections
+        for m in matched:
+            self.trackers[m[1]].update(dets[m[0], :])
+
+        # Create and initialize new trackers for unmatched detections
+        for i in unmatched_dets:
+            trk = KalmanBoxTracker(np.hstack((dets[i, :], np.array([0]))))
+            self.trackers.append(trk)
+            if unique_color:
+                self.color_list.append(self.get_color())
+
+        i = len(self.trackers)
+        for trk in reversed(self.trackers):
+            d = trk.get_state()[0]
+            if (trk.time_since_update < 1) and (trk.hit_streak >= self.min_hits or self.frame_count <= self.min_hits):
+                ret.append(np.concatenate((d, [trk.id + 1])).reshape(1,
+                                                                     -1))  # +1'd because MOT benchmark requires positive value
+            i -= 1
+            # remove dead tracklet
+            if trk.time_since_update > self.max_age:
+                self.trackers.pop(i)
+                if unique_color:
+                    self.color_list.pop(i)
+
+        if len(ret) > 0:
+            return np.concatenate(ret)
+        return np.empty((0, 6))
+
+    def update_1(self, dets=np.empty((0, 6))):
         """
         Parameters:
         'dets' - a numpy array of detection in the format [[x1, y1, x2, y2, score], [x1,y1,x2,y2,score],...]
@@ -361,7 +429,7 @@ if __name__ == '__main__':
             ax1.cla()
 
     print("Total Tracking took: %.3f seconds for %d frames or %.1f FPS" % (
-    total_time, total_frames, total_frames / total_time))
+        total_time, total_frames, total_frames / total_time))
 
     if (display):
         print("Note: to get real runtime results run without the option: --display")
