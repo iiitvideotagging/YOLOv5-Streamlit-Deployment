@@ -22,30 +22,17 @@ tensorboard>=2.4.1
 pandas>=1.1.4
 seaborn>=0.11.0
 
-# Export --------------------------------------
-# coremltools>=4.1  # CoreML export
-# onnx>=1.9.0  # ONNX export
-# onnx-simplifier>=0.3.6  # ONNX simplifier
-# scikit-learn==0.19.2  # CoreML quantization
-# tensorflow>=2.4.1  # TFLite export
-# tensorflowjs>=3.9.0  # TF.js export
-# openvino-dev  # OpenVINO export
-
 # Extras --------------------------------------
 ipython  # interactive notebook
 psutil==5.9.4
 thop  # FLOPs computation
 streamlit==1.16.0
 st_btn_select
-# albumentations>=1.0.3
-# pycocotools>=2.0  # COCO mAP
-# roboflow
 wget==3.2
 pip==21.1.2
 wheel==0.36.2
 setuptools==57.0.0
 ffmpeg-python
-# opencv-python==4.6.0.66
 
 # Tracking ------------------------------------
 filterpy

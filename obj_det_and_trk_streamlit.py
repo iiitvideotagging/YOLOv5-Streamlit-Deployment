@@ -1,21 +1,19 @@
 import os
+import random
 import sys
-import streamlit as st
-import cv2
-import time
-import torch
-import psutil
-import argparse
-import numpy as np
 from pathlib import Path
-from collections import Counter
+
+import psutil
+import streamlit as st
+import torch
 import torch.backends.cudnn as cudnn
-from utils.general import set_logging
+
 from models.common import DetectMultiBackend
-from utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadStreams
-from utils.general import (LOGGER, Profile, check_file, check_img_size, check_imshow, check_requirements, colorstr, cv2,
-                           increment_path, non_max_suppression, print_args, scale_coords, strip_optimizer, xyxy2xywh)
-from utils.plots import Annotator, colors, save_one_box
+from utils.dataloaders import LoadImages, LoadStreams
+from utils.general import (check_img_size, cv2,
+                           increment_path, non_max_suppression, scale_coords, strip_optimizer)
+from utils.general import set_logging
+from utils.plots import Annotator
 from utils.torch_utils import select_device, time_sync
 
 FILE = Path(__file__).resolve()
@@ -25,7 +23,6 @@ if str(ROOT) not in sys.path:
 ROOT = Path(os.path.relpath(ROOT, Path.cwd()))
 
 # ---------------Object Tracking---------------
-import skimage
 from sort import *
 
 # ............................... Tracker Functions ............................
@@ -158,6 +155,9 @@ def detect_and_track(weights=ROOT / 'yolov5n.pt',
     progress_bar = st.progress(0)
     progress = frame_counter_class()
 
+    ts = random.randrange(20, 50000, 3)  # datetime.timestamp(datetime.now())
+    generated_file_name = str(ts).replace("-", "_") + "detected_video"
+
     for path, im, im0s, vid_cap, s in dataset:
 
         t1 = time_sync()
@@ -188,7 +188,10 @@ def detect_and_track(weights=ROOT / 'yolov5n.pt',
                 p, im0, frame = path, im0s.copy(), getattr(dataset, 'frame', 0)
 
             p = Path(p)
-            save_path = str(save_dir / p.name)
+            save_path = str(save_dir / generated_file_name)  # im.jpg
+            print(f"Initial save path : {save_path}")
+
+            # save_path = str(save_dir / p.name)
             txt_path = str(save_dir / 'labels' / p.stem) + ('' if dataset.mode == 'image' else f'_{frame}')  # im.txt
             s += '%gx%g ' % im.shape[2:]
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]

@@ -47,7 +47,8 @@ def imageInput(device, src):
 
             # call Model prediction--
             model = torch.hub.load('ultralytics/yolov5', 'custom', path=cfg_model_path, force_reload=True)
-            model.cuda() if device == 'cuda' else model.cpu()
+            # model.cuda() if device == 'cuda' else model.cpu()
+            model.cpu()
             pred = model(imgpath)
             pred.render()  # render bbox in image
             for im in pred.ims:
@@ -107,7 +108,7 @@ def videoInput(device, src, iou_score, confidence_score):
                                                  options, options)
     else:
         selected_options = container.multiselect("Objects of interest on road scene:",
-                                                 options)
+                                                 options, ['car', 'bicycle'])
     classes_string = prepare_classes_string(selected_options)
     print(selected_options)
 
@@ -169,15 +170,13 @@ def videoInput(device, src, iou_score, confidence_score):
                                      conf_thres=confidence_score, line_thickness=1, nosave=no_save,
                                      hide_labels=hide_labels, classes=classes_string)
 
-            print("Output path", output_path)
-
-            new_video_file_name = str(ts).replace("-", "_") + uploaded_video.name
+            print("Output path final ", output_path)
+            new_video_file_name = str(ts).replace("-", "_") + "_improved_video.mp4"
             new_video_path = os.path.join(Path.cwd(), 'data', 'outputs', new_video_file_name)
             # os.chdir('C://Users/Alex/')
             # subprocess.call(['ffmpeg', '-i', output_path, '-vcodec libx264 ', new_video_path ])
             # call_with_output(['ffmpeg', '-i', output_path, '-vcodec libx264 ', new_video_path])
             st.markdown("""<h4 style="color:black;"> Final Video Generated </h4>""", unsafe_allow_html=True)
-
             cmd = "ffmpeg -i " + output_path + " -vcodec libx264 " + new_video_path
             os.system(cmd)
 
