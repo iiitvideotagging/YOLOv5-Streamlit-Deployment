@@ -82,7 +82,7 @@ def draw_boxes(img, bbox, identities=None, categories=None, confidences = None, 
     return img
 
 @smart_inference_mode()
-def run(
+def detect_run_updated(
         weights=ROOT / 'yolov5s.pt',  # model path or triton URL
         source=ROOT / 'data/images',  # file/dir/URL/glob/screen/0(webcam)
         data=ROOT / 'data/coco128.yaml',  # dataset.yaml path
