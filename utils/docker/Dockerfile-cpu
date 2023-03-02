@@ -3,7 +3,7 @@
 # Image is CPU-optimized for ONNX, OpenVINO and PyTorch YOLOv5 deployments
 
 # Start FROM Ubuntu image https://hub.docker.com/_/ubuntu
-FROM ubuntu:20.04
+FROM ubuntu:20.04@sha256:9fa30fcef427e5e88c76bc41ad37b7cc573e1d79cecb23035e413c4be6e476ab
 
 # Downloads to user config dir
 ADD https://ultralytics.com/assets/Arial.ttf https://ultralytics.com/assets/Arial.Unicode.ttf /root/.config/Ultralytics/
